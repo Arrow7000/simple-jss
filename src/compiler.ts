@@ -1,4 +1,3 @@
-import styles = require('./styles');
 
 function isObject(val: any): val is object {
     if (val === null) { return false; }
@@ -11,8 +10,89 @@ function camelCaseToDash(myStr: string): string {
 
 const repeatChars = (char: string, num: number) => new Array(num).fill(char).join('');
 
+type propValue = string | number;
 
-function compiler(style: object, minified: boolean = false, isTop: boolean = true, indent: number = 0) {
+interface StyleObject {
+    [propOrSelector: string]: propValue | StyleObject;
+}
+
+type iterFunc = <O extends object, K extends keyof O & string, V extends O[keyof O]>(value?: V, key?: K, obj?: O) => object | V;
+
+function mapValues<T extends object>(obj: T, func: iterFunc): T {
+    const newObj: T = {} as T;
+    for (const prop in obj) {
+        const value = obj[prop];
+        newObj[prop] = func(value, prop, obj);
+    }
+    return newObj;
+}
+
+
+// function resolveAncestorRefs(rawStyleObj: StyleObject, indent: number = 0): StyleObject {
+//     const style = rawStyleObj;
+
+//     const resolved = mapValues(style, (value, key) => {
+//         if (isObject(value)) {
+//             const resolved = resolveAncestorRefs(value);
+//             return resolved;
+//         } else {
+
+//             if (typeof value === 'string') {
+//                 const ampersandList = value.match(/&+/g);
+//                 if (ampersandList) console.log({ ampersandList });
+//                 return value;
+//             } else {
+//                 return value;
+//             }
+//         }
+//     });
+//     console.log({ resolved });
+//     return resolved;
+// }
+
+function resolveAncestorRefs(rawStyleObj: StyleObject, indent: number = 0): StyleObject {
+    const style = rawStyleObj;
+
+    const newObj = {};
+
+    for (const prop in style) {
+        const value = style[prop];
+
+
+        if (isObject(value)) {
+            if (typeof prop === 'string') {
+                const ampersandList = prop.match(/&+/g);
+                console.log({ ampersandList });
+                if (ampersandList) {
+
+
+
+                }
+            }
+
+
+
+
+
+
+            const resolved = resolveAncestorRefs(value);
+            newObj[prop] = resolved;
+        } else {
+            newObj[prop] = value;
+        }
+    }
+    console.log({ newObj });
+    return newObj;
+}
+
+
+
+
+
+
+
+
+function objToCss(styleObj: StyleObject, minified: boolean = false, indent: number = 0) {
     const space = minified ? '' : ' ';
     const tab = minified ? '' : '  ';
     const nl = minified ? '' : '\n';
@@ -20,10 +100,10 @@ function compiler(style: object, minified: boolean = false, isTop: boolean = tru
     let string = '';
     const indentation = repeatChars(tab, indent);
 
-    for (const prop in style) {
-        const value = style[prop];
+    for (const prop in styleObj) {
+        const value = styleObj[prop];
         if (isObject(value)) {
-            const body = compiler(value, minified, false, indent + 1);
+            const body = objToCss(value, minified, indent + 1);
             string += `${indentation}${prop}${space}{${nl}${body}${indentation}}${nl}`;
         } else {
             const normalProp = camelCaseToDash(prop)
@@ -34,6 +114,11 @@ function compiler(style: object, minified: boolean = false, isTop: boolean = tru
     return string;
 }
 
-console.log(compiler(styles));
+function compiler(style: StyleObject, minified: boolean = true) {
+    const resolvedAncestors = resolveAncestorRefs(style);
+    const css = objToCss(resolvedAncestors, minified);
+    return css;
+}
 
-export = (style: object, minified: boolean) => compiler(style, minified);
+
+export = compiler;

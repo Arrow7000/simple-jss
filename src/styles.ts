@@ -1,12 +1,12 @@
-type Lang = [string, string];
+type Lang = [string, number]; // tuple
 
 const langs: Lang[] = [
-    ['js', '80%'],
-    ['ts', '90%'],
-    ['html', ' 85%'],
-    ['css', '75%'],
-    ['python', '45%'],
-    ['fs', '15%'],
+    ['js', 80],
+    ['ts', 90],
+    ['html', 85],
+    ['css', 75],
+    ['python', 45],
+    ['fs', 15],
 ];
 
 const mixinWide = (lang: Lang) => {
@@ -23,7 +23,7 @@ const mixinWide = (lang: Lang) => {
 const mixinNarrow = (lang: Lang) => {
     return {
         [`.${lang[0]}`]: {
-            '&.skill': {
+            '&&.skill &': {
                 height: '100%',
                 width: lang[1]
             }

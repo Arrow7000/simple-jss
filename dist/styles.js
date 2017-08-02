@@ -8,12 +8,12 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
     return t;
 };
 var langs = [
-    ['js', '80%'],
-    ['ts', '90%'],
-    ['html', ' 85%'],
-    ['css', '75%'],
-    ['python', '45%'],
-    ['fs', '15%'],
+    ['js', 80],
+    ['ts', 90],
+    ['html', 85],
+    ['css', 75],
+    ['python', 45],
+    ['fs', 15],
 ];
 var mixinWide = function (lang) {
     return _a = {},
@@ -29,7 +29,7 @@ var mixinWide = function (lang) {
 var mixinNarrow = function (lang) {
     return _a = {},
         _a["." + lang[0]] = {
-            '&.skill': {
+            '&&.skill &': {
                 height: '100%',
                 width: lang[1]
             }
