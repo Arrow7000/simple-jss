@@ -32,29 +32,36 @@ interface CssObj {
 }
 
 
-function flatten(style: Obj): CssObj {
+function flatten(style: Obj): Obj {
     console.log(JSON.stringify(style, null, 2));
-    let css: CssObj = {};
-
-    crawlStyleObj(style);
+    const css: Obj = {};
+    crawlStyleObj(style, css);
 
     return css;
 
 
 
-    function crawlStyleObj(style: Obj, parentSelector: string = '') {
+    function crawlStyleObj(style: Obj, mount: Obj, parentSelector: string = '') {
+
         for (const prop in style) {
             const value = style[prop];
             const parent = parentSelector.trim();
 
             if (isObject(value)) {
                 if (parent.startsWith('@media')) {
-                    // do something else
+                    if (!mount[parent]) {
+                        mount[parent] = {};
+                    }
+                    crawlStyleObj(value, mount[parent] as Obj, prop);
                 } else {
-                    crawlStyleObj(value, parentSelector + ' ' + prop);
+                    const newSelector = parent + ' ' + prop;
+                    crawlStyleObj(value, mount, newSelector);
                 }
             } else {
-                css[parent] = { [prop]: value };
+                if (!mount[parent]) {
+                    mount[parent] = {};
+                }
+                mount[parent][prop] = value;
             }
         }
     }
@@ -88,9 +95,9 @@ function objToCss(styleObj: StyleObject, minified: boolean = false, indent: numb
 
 function compiler(style: StyleObject, minified: boolean = true) {
     // const resolvedAncestors = resolveAncestorRefs(style);
-    console.log(flatten(style));
+    // console.log(flatten(style));
 
-    const css = objToCss(style, minified);
+    const css = objToCss(flatten(style), minified);
     return css;
 }
 
