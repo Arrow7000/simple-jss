@@ -19,6 +19,8 @@
     },
     "homepage": "https://github.com/Arrow7000/simple-jss#readme",
     "dependencies": {
+        "@types/lodash": "^4.14.71",
+        "lodash": "^4.17.4",
         "typescript": "^2.4.2"
     }
 }

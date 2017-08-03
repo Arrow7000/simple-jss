@@ -8,56 +8,31 @@ function isObject(val) {
 function camelCaseToDash(myStr) {
     return myStr.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
 }
-var repeatChars = function (char, num) { return new Array(num).fill(char).join(''); };
-function mapValues(obj, func) {
-    var newObj = {};
-    for (var prop in obj) {
-        var value = obj[prop];
-        newObj[prop] = func(value, prop, obj);
-    }
-    return newObj;
-}
-// function resolveAncestorRefs(rawStyleObj: StyleObject, indent: number = 0): StyleObject {
-//     const style = rawStyleObj;
-//     const resolved = mapValues(style, (value, key) => {
-//         if (isObject(value)) {
-//             const resolved = resolveAncestorRefs(value);
-//             return resolved;
-//         } else {
-//             if (typeof value === 'string') {
-//                 const ampersandList = value.match(/&+/g);
-//                 if (ampersandList) console.log({ ampersandList });
-//                 return value;
-//             } else {
-//                 return value;
-//             }
-//         }
-//     });
-//     console.log({ resolved });
-//     return resolved;
-// }
-function resolveAncestorRefs(rawStyleObj, indent) {
-    if (indent === void 0) { indent = 0; }
-    var style = rawStyleObj;
-    var newObj = {};
-    for (var prop in style) {
-        var value = style[prop];
-        if (isObject(value)) {
-            if (typeof prop === 'string') {
-                var ampersandList = prop.match(/&+/g);
-                console.log({ ampersandList: ampersandList });
-                if (ampersandList) {
+var repeatStr = function (str, num) { return new Array(num).fill(str).join(''); };
+function flatten(style) {
+    console.log(JSON.stringify(style, null, 2));
+    var css = {};
+    crawlStyleObj(style);
+    return css;
+    function crawlStyleObj(style, parentSelector) {
+        if (parentSelector === void 0) { parentSelector = ''; }
+        for (var prop in style) {
+            var value = style[prop];
+            var parent_1 = parentSelector.trim();
+            if (isObject(value)) {
+                if (parent_1.startsWith('@media')) {
+                    // do something else
+                }
+                else {
+                    crawlStyleObj(value, parentSelector + ' ' + prop);
                 }
             }
-            var resolved = resolveAncestorRefs(value);
-            newObj[prop] = resolved;
+            else {
+                css[parent_1] = (_a = {}, _a[prop] = value, _a);
+            }
         }
-        else {
-            newObj[prop] = value;
-        }
+        var _a;
     }
-    console.log({ newObj: newObj });
-    return newObj;
 }
 function objToCss(styleObj, minified, indent) {
     if (minified === void 0) { minified = false; }
@@ -66,7 +41,7 @@ function objToCss(styleObj, minified, indent) {
     var tab = minified ? '' : '  ';
     var nl = minified ? '' : '\n';
     var string = '';
-    var indentation = repeatChars(tab, indent);
+    var indentation = repeatStr(tab, indent);
     for (var prop in styleObj) {
         var value = styleObj[prop];
         if (isObject(value)) {
@@ -82,8 +57,9 @@ function objToCss(styleObj, minified, indent) {
 }
 function compiler(style, minified) {
     if (minified === void 0) { minified = true; }
-    var resolvedAncestors = resolveAncestorRefs(style);
-    var css = objToCss(resolvedAncestors, minified);
+    // const resolvedAncestors = resolveAncestorRefs(style);
+    console.log(flatten(style));
+    var css = objToCss(style, minified);
     return css;
 }
 module.exports = compiler;
