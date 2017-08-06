@@ -9,6 +9,6 @@
         "name": "Launch Program",
         "program": "${workspaceRoot}/src/styles.ts",
         "outFiles": ["${workspaceRoot}/dist/*.js"],
-        "sourceMaps": true,
+        "sourceMaps": true
     }]
 }
